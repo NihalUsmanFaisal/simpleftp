@@ -18,23 +18,7 @@ public class FTPServer {
         logger.info("Server is starting up");
         while(serverRunning){
             Socket s = socket.accept();
-            logger.error("Server has accepted a connection request from a client");
-            DataInputStream dataInputStream = new DataInputStream(s.getInputStream());
-            DataOutputStream dataOutputStream = new DataOutputStream(s.getOutputStream());
-            boolean eof = true;
-            while(eof){
-                try{
-                    String str = dataInputStream.readUTF();
-                    logger.info("Input from cliend hase been read");
-                    System.out.println("message: " + str);
-                    dataOutputStream.writeUTF("message recieved");
-                    logger.info("Response sent back to client");
-                }
-                catch (EOFException e){
-                    logger.info("End of file  has been reached");
-                    eof = false;
-                }
-            }
+            WorkerFactory.getInstance().getWorker(s);
         }
         socket.close();
     }
