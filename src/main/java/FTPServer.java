@@ -17,8 +17,8 @@ public class FTPServer {
         boolean serverRunning = true;
         logger.info("Server is starting up");
         while(serverRunning){
-            Socket s = socket.accept();
-            WorkerFactory.getInstance().getWorker(s);
+            Socket controlSocket = socket.accept();
+            WorkerFactory.getInstance().getWorker(controlSocket);
         }
         socket.close();
     }
