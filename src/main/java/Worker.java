@@ -1,17 +1,15 @@
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class Worker  extends Thread implements WorkerService{
 
     private Socket controlSocket;
 
-    private static final Logger logger = LoggerFactory.getLogger(Worker.class);
+    private static final Logger logger = LogManager.getLogger(Worker.class);
 
     public Worker(Socket connectionSocket ){
         this.controlSocket = connectionSocket;
@@ -24,12 +22,13 @@ public class Worker  extends Thread implements WorkerService{
         try{
             DataInputStream dataInputStream = new DataInputStream(controlSocket.getInputStream());
             DataOutputStream dataOutputStream = new DataOutputStream(controlSocket.getOutputStream());
+            BufferedReader clientCommandReader = new BufferedReader(new InputStreamReader(dataInputStream));
             boolean eof = true;
             while(eof){
                 try{
-                    String str = dataInputStream.readUTF();
-                    logger.info("Input from client hase been read");
-                    logger.info("Message :"+str);
+                    String command = clientCommandReader.readLine();
+                    logger.info("Command from client has been read :"+ command);
+                    executeCommand(command);
                     dataOutputStream.writeUTF("message recieved");
                     logger.info("Response sent back to client");
                 }
@@ -50,8 +49,37 @@ public class Worker  extends Thread implements WorkerService{
     }
 
     @Override
-    public void executeCommand() {
+    public void executeCommand(String command) {
+        switch (command){
+            case "CWD" :
+                logger.info("Execute change working directory command");
+                break;
+            case "RETR" :
+                logger.info("Execute Retrieve file ");
+                break;
+            case "STORE":
+                logger.info("Execute store file");
+                break;
+            case "APPEND":
+                logger.info("Execute append file");
+                break;
+            case "DEL":
+                logger.info("Execute delete file");
+                break;
+            case "RMD":
+                logger.info("Execute remove directory");
+                break;
+            case "LIST":
+                logger.info("Execute list All Files");
+                break;
+            case "CLOSE":
+                logger.info("Execute close Connection");
+                break;
+            default:
+                logger.error("Invalid command");
+                return;
 
+        }
     }
 
     @Override
